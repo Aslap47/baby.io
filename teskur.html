@@ -1,1 +1,146 @@
-Teşekkür edeirimmmm
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Teşekkür Ederim Canımın İçi!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.9);
+            border-radius: 30px;
+            padding: 60px 50px 40px 50px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #ff6f61;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeInDown 1s forwards;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: #444;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1.2s 0.4s forwards;
+        }
+
+        .heart {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ff6f61;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulse 1.4s infinite;
+            z-index: 2;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ff6f61;
+            border-radius: 50%;
+        }
+        .heart::before {
+            left: -20px;
+            top: 0;
+        }
+        .heart::after {
+            left: 0;
+            top: -20px;
+        }
+
+        /* Animasyonlar */
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-30px);}
+            100% { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px);}
+            100% { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1);}
+            50% { transform: translate(-50%, -50%) scale(1.15);}
+            100% { transform: translate(-50%, -50%) scale(1);}
+        }
+
+        /* Uçuşan Konfeti */
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #fcb69f, #ff6f61, #ffecd2, #f6d365);
+            border-radius: 50%;
+            opacity: 0.85;
+            pointer-events: none;
+            z-index: 99;
+            animation: confetti-fall 3s linear forwards;
+        }
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="heart"></div>
+        <h1>Teşekkür Ederim!</h1>
+        <p>
+            Varlığınız, desteğiniz ve güzel enerjiniz için gönülden teşekkürler!<br>
+            Sizinle daha güzel şeyler başarmak dileğiyle...
+        </p>
+    </div>
+    <script>
+        // Konfeti animasyonu
+        function createConfetti() {
+            for(let i=0; i<40; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.background = 
+                    'linear-gradient(135deg, ' +
+                    ['#fcb69f', '#ff6f61', '#ffecd2', '#f6d365', '#a8edea', '#fcb69f'][Math.floor(Math.random()*6)] +
+                    ', white)';
+                confetti.style.animationDuration = (2.4 + Math.random() * 1.8) + 's';
+                confetti.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+                confetti.style.width = confetti.style.height = (8 + Math.random()*10) + 'px';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3200);
+            }
+        }
+        setTimeout(createConfetti, 700);
+    </script>
+</body>
+</html>
