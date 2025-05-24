@@ -1,146 +1,129 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>Teşekkür Ederim Canımın İçi!</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-        }
-
-        .container {
-            background: rgba(255,255,255,0.9);
-            border-radius: 30px;
-            padding: 60px 50px 40px 50px;
-            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            color: #ff6f61;
-            font-size: 3rem;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            opacity: 0;
-            animation: fadeInDown 1s forwards;
-        }
-
-        p {
-            font-size: 1.5rem;
-            color: #444;
-            margin-bottom: 30px;
-            opacity: 0;
-            animation: fadeInUp 1.2s 0.4s forwards;
-        }
-
-        .heart {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: #ff6f61;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            animation: pulse 1.4s infinite;
-            z-index: 2;
-        }
-
-        .heart::before,
-        .heart::after {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: #ff6f61;
-            border-radius: 50%;
-        }
-        .heart::before {
-            left: -20px;
-            top: 0;
-        }
-        .heart::after {
-            left: 0;
-            top: -20px;
-        }
-
-        /* Animasyonlar */
-        @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-30px);}
-            100% { opacity: 1; transform: translateY(0);}
-        }
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(30px);}
-            100% { opacity: 1; transform: translateY(0);}
-        }
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1);}
-            50% { transform: translate(-50%, -50%) scale(1.15);}
-            100% { transform: translate(-50%, -50%) scale(1);}
-        }
-
-        /* Uçuşan Konfeti */
-        .confetti {
-            position: fixed;
-            width: 12px;
-            height: 12px;
-            background: linear-gradient(135deg, #fcb69f, #ff6f61, #ffecd2, #f6d365);
-            border-radius: 50%;
-            opacity: 0.85;
-            pointer-events: none;
-            z-index: 99;
-            animation: confetti-fall 3s linear forwards;
-        }
-        @keyframes confetti-fall {
-            to {
-                transform: translateY(110vh) rotate(360deg);
-                opacity: 0.1;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Kalp Animasyonu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
+      background: linear-gradient(135deg, #0f054c 0%, #8f2fff 100%);
+    }
+    canvas {
+      display: block;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="heart"></div>
-        <h1>Teşekkür Ederim!</h1>
-        <p>
-            İyiki varsınnnn. Barıştığımıza sevindim... 
-            Birdaha hiç darılmayalım olur mu?
-        </p>
-    </div>
-    <script>
-        // Konfeti animasyonu
-        function createConfetti() {
-            for(let i=0; i<40; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-20px';
-                confetti.style.background = 
-                    'linear-gradient(135deg, ' +
-                    ['#fcb69f', '#ff6f61', '#ffecd2', '#f6d365', '#a8edea', '#fcb69f'][Math.floor(Math.random()*6)] +
-                    ', white)';
-                confetti.style.animationDuration = (2.4 + Math.random() * 1.8) + 's';
-                confetti.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
-                confetti.style.width = confetti.style.height = (8 + Math.random()*10) + 'px';
-                document.body.appendChild(confetti);
+  <canvas id="heart-canvas"></canvas>
+  <script>
+    // Kalp animasyonu saf hali
+    const canvas = document.getElementById('heart-canvas');
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth, H = window.innerHeight;
+    function resize() {
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W; canvas.height = H;
+    }
+    window.addEventListener('resize', resize); resize();
 
-                setTimeout(() => {
-                    confetti.remove();
-                }, 3200);
+    // Renkler
+    const heartColors = [
+      "#8f2fff","#66d4ff","#b275ff","#ffb3ec","#48c6ef","#4e54c8","#a4508b","#5f5fc4"
+    ];
+
+    let particles = [];
+    let heart = [];
+    let angle = 0, beatCounter = 0, beating = true, dispersing = false, frame = 0;
+
+    function setupParticles() {
+      particles = [];
+      heart = [];
+      angle = 0;
+      beatCounter = 0;
+      beating = true;
+      dispersing = false;
+      frame = 0;
+
+      // Kalp noktalarını oluştur
+      for (let t = 0; t < Math.PI * 2; t += 0.037) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        heart.push({ x: x * 13, y: -y * 13 });
+      }
+      // Partikülleri rastgele başlat, hedefleri kalp şekli
+      for (let i = 0; i < heart.length; i++) {
+        let h = heart[i];
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          tx: W / 2 + h.x,
+          ty: H / 2 + h.y,
+          vx: 0,
+          vy: 0,
+          alpha: 1,
+          color: heartColors[Math.floor(Math.random() * heartColors.length)]
+        });
+      }
+    }
+
+    function animateHeart() {
+      frame++;
+      ctx.fillStyle = "rgba(15, 5, 76, 0.20)";
+      ctx.fillRect(0, 0, W, H);
+
+      particles.forEach((p, i) => {
+        if (!dispersing) {
+          let dx = p.tx - p.x;
+          let dy = p.ty - p.y;
+          p.vx += dx * 0.018;
+          p.vy += dy * 0.018;
+          p.vx *= 0.82;
+          p.vy *= 0.82;
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (beating) {
+            const scale = 1 + 0.045 * Math.sin(frame * 0.33);
+            p.tx = W / 2 + heart[i].x * scale;
+            p.ty = H / 2 + heart[i].y * scale;
+            if (frame % 60 === 0) beatCounter++;
+            if (beatCounter >= 2) {
+              beating = false;
+              dispersing = true;
             }
+          }
+        } else {
+          p.vx += (Math.random() - 0.5) * 0.6;
+          p.vy += (Math.random() - 0.5) * 0.6;
+          p.vx *= 0.97;
+          p.vy *= 0.97;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha *= 0.96;
         }
-        setTimeout(createConfetti, 700);
-    </script>
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = dispersing
+          ? `rgba(143,47,255,${p.alpha})`
+          : p.color;
+        ctx.shadowColor = "#8f2fff";
+        ctx.shadowBlur = 13;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      requestAnimationFrame(animateHeart);
+    }
+
+    // Başlat
+    setupParticles();
+    animateHeart();
+  </script>
 </body>
 </html>
